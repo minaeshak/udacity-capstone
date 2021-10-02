@@ -38,6 +38,7 @@ jobs:
             - run:
                 name: build and push docker image
                 command: |
+                    apk add docker-cli
                     docker build --tag=udacity-capstone . \
                     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin \
                     docker tag udacity-capstone minaeshak/udacity-capstone \
