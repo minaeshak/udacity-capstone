@@ -81,14 +81,17 @@ jobs:
             - run:
                 name: deploy the app
                 command: |
-                     kubectl apply -f deployment.yml 
+                    kubectl apply -f deployment.yml 
+                    kubectl get pods
+                    kubectl get services
 
     
                 
 workflows:
   default:
     jobs:
-#      - build
-#        - docker-push
-        - deploy-eks
-#          requires: [docker-push]
+        - build
+        - docker-push:
+              requires: [build]
+        - deploy-eks:
+              requires: [docker-push]
