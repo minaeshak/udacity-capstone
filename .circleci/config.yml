@@ -42,9 +42,13 @@ jobs:
         steps:
             - checkout
             - run:
-                name: build and push docker image
+                name: build docker image
                 command: |
-                    docker build --tag=udacity-capstone . \
+                    docker build --tag=udacity-capstone . 
+
+            - run:
+                name: push docker image
+                command: |
                     docker login -u "$DOCKER_ID" -p "$DOCKER_PASSWORD" \
                     docker tag udacity-capstone minaeshak/udacity-capstone \
                     docker push minaeshak/udacity-capstone
