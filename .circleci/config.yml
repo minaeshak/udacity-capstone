@@ -52,7 +52,7 @@ jobs:
                     
     deploy-eks:
         docker:
-            - image: cimg/go:1.16
+            - image: amazon/aws-cli
         steps:
             - checkout
             - run:
