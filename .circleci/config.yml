@@ -50,43 +50,47 @@ jobs:
                     docker tag udacity-capstone minaeshak/udacity-capstone && \
                     docker push minaeshak/udacity-capstone
                     
-    deploy-ec2:
+    deploy-eks:
         docker:
-          - image: amazon/aws-cli
+            - image: amazon/aws-cli
         steps:
-          - checkout
-          - run:
-              name: Install Dependancies 
-              command: |
-                yum install gzip -y 
-                yum install tar -y       
-          - run:
-              name: Deploy K8s EC2
-              command: |
-                aws cloudformation deploy \
-                  --template-file .circleci/files/ec2.yml \
-                  --tags project=udacity-capstone \
-                  --stack-name "udacity-capstone-${CIRCLE_WORKFLOW_ID:0:7}" \
-                  --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}  \
-          - run:
-              name: Add instance ip to ansible inventory
-              command: |
-                echo "[web]" > inventory.txt
-                IP=$(aws ec2 describe-instances --region eu-central-1 --query "Reservations[*].Instances[*].PublicIpAddress"  --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}"  --output text) 
-                echo $IP >> .circleci/ansible/inventory.txt
-                cat .circleci/ansible/inventory.txt
-                curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "${IP}" https://api.memstash.io/values/ec2-ip-${CIRCLE_WORKFLOW_ID:0:7}                   
-          - persist_to_workspace:
-              root: ~/project/.circleci/ansible/
-              paths:
-                - inventory.txt
-    push-docker-image:
+            - checkout
+            - run:
+                name: install kubectl & eksctl
+                commmand: | 
+                    curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/darwin/amd64/kubectl
+                    chmod +x ./kubectl
+                    mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
+                    echo 'export PATH=$PATH:$HOME/bin' >> ~/.bash_profile
+                    kubectl version --short --client
+
+                    curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+                    sudo mv /tmp/eksctl /usr/local/bin
+                    eksctl version
+
+                
+            - run:
+                name: create EKS cluster
+                command: | 
+                    eksctl create cluster \
+                    --name udacity-capstone \
+                    --region eu-central-1 \
+                    --with-oidc \
+                    --ssh-access \
+                    --ssh-public-key udacity-frankfurt-v2
+            - run:
+                name: deploy the app
+                commmand: |
+                     kubectl apply -f deployment.yml 
+
+                
+
     
                 
 workflows:
   default:
     jobs:
 #      - build
-        - docker-push
-#      - deploy-ec2
-#          requires: [build]
+#        - docker-push
+      - deploy-eks
+#          requires: [docker-push]
