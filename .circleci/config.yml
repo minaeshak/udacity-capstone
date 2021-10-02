@@ -35,14 +35,7 @@ jobs:
                 command: |
                     . venv/bin/activate
                     make lint
-            - run:
-                name: build and push docker image
-                command: |
-                    docker build --tag=udacity-capstone . \
-                    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin \
-                    docker tag udacity-capstone minaeshak/udacity-capstone \
-                    docker push minaeshak/udacity-capstone
-
+  
                     
     docker-push:
         machine: true
@@ -52,7 +45,7 @@ jobs:
                 name: build and push docker image
                 command: |
                     docker build --tag=udacity-capstone . \
-                    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin \
+                    docker login -u "$DOCKER_ID" -p "$DOCKER_PASSWORD" \
                     docker tag udacity-capstone minaeshak/udacity-capstone \
                     docker push minaeshak/udacity-capstone
                     
