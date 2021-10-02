@@ -54,7 +54,6 @@ jobs:
                   --tags project=udacity-capstone \
                   --stack-name "udacity-capstone-${CIRCLE_WORKFLOW_ID:0:7}" \
                   --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}  \
-                  --region eu-central-1
           - run:
               name: Add instance ip to ansible inventory
               command: |
@@ -71,6 +70,6 @@ jobs:
 workflows:
   default:
     jobs:
-      - build
-      - deploy-ec2:
-          requires: [build]
+#      - build
+      - deploy-ec2
+#          requires: [build]
