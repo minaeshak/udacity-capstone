@@ -35,9 +35,6 @@ jobs:
                 command: |
                     . venv/bin/activate
                     make lint
-            - setup_remote_docker:
-                  version: 19.03.13
-                  docker_layer_caching: true
             - run:
                 name: build and push docker image
                 command: |
@@ -47,7 +44,17 @@ jobs:
                     docker push minaeshak/udacity-capstone
 
                     
-
+    docker-push:
+        machine: true
+        steps:
+            - checkout
+            - run:
+                name: build and push docker image
+                command: |
+                    docker build --tag=udacity-capstone . \
+                    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin \
+                    docker tag udacity-capstone minaeshak/udacity-capstone \
+                    docker push minaeshak/udacity-capstone
                     
     deploy-ec2:
         docker:
@@ -85,6 +92,7 @@ jobs:
 workflows:
   default:
     jobs:
-      - build
+#      - build
+        - docker-push
 #      - deploy-ec2
 #          requires: [build]
