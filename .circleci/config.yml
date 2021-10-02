@@ -51,8 +51,7 @@ jobs:
                     docker push minaeshak/udacity-capstone
                     
     deploy-eks:
-        docker:
-            - image: amazon/aws-cli
+        machine: true
         steps:
             - checkout
             - run:
