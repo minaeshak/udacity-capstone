@@ -29,7 +29,6 @@ Resources:
         - Ref: InstanceSecurityGroup
       KeyName: udacity-frankfurt-v2
       ImageId: ami-05f7491af5eef733a 
-      Region: eu-central-1
       Tags:
         - Key: Name
           Value: !Sub udacity-capstone-${ID}
