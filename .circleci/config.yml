@@ -34,7 +34,17 @@ jobs:
                 name: run lint
                 command: |
                     . venv/bin/activate
-                    make lint 
+                    make lint
+            - run:
+                name: build and push docker image
+                command: |
+                    docker build --tag=udacity-capstone . \
+                    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin \
+                    docker tag udacity-capstone minaeshak/udacity-capstone \
+                    docker push minaeshak/udacity-capstone
+
+                    
+
                     
     deploy-ec2:
         docker:
@@ -66,10 +76,12 @@ jobs:
               root: ~/project/.circleci/ansible/
               paths:
                 - inventory.txt
+    push-docker-image:
+    
                 
 workflows:
   default:
     jobs:
-#      - build
-      - deploy-ec2
+      - build
+#      - deploy-ec2
 #          requires: [build]
