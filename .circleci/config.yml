@@ -35,6 +35,7 @@ jobs:
                 command: |
                     . venv/bin/activate
                     make lint 
+                    
     deploy-ec2:
         docker:
           - image: amazon/aws-cli
@@ -70,5 +71,5 @@ workflows:
   default:
     jobs:
       - build
-      - delpoy-ec2:
+      - deploy-ec2:
           requires: [build]
