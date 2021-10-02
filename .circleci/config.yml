@@ -73,7 +73,7 @@ jobs:
                 name: create EKS cluster
                 command: | 
                     eksctl create cluster \
-                    --name udacity-capstone \
+                    --name udacity-capstone-${CIRCLE_WORKFLOW_ID:0:7} \
                     --region eu-central-1 \
                     --with-oidc \
                     --ssh-access \
