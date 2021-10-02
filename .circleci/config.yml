@@ -92,5 +92,5 @@ workflows:
     jobs:
 #      - build
 #        - docker-push
-      - deploy-eks
+        - deploy-eks
 #          requires: [docker-push]
