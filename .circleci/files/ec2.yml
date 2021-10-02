@@ -1,0 +1,34 @@
+Description: >
+    Udacity Capstone Project EC2
+Parameters:
+  ID:
+    Description: Unique identifier.
+    Type: String
+
+Resources:
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub udacity-capstone-${ID}
+      GroupDescription: Allow port 22 and port 8080.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroups:
+        - Ref: InstanceSecurityGroup
+      KeyName: udacity-frankfurt-v2
+      ImageId: ami-05f7491af5eef733a 
+      Tags:
+        - Key: Name
+          Value: !Sub udacity-capstone-${ID}

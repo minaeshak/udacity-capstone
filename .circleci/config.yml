@@ -35,3 +35,33 @@ jobs:
                 command: |
                     . venv/bin/activate
                     make lint 
+    deploy-ec2:
+        docker:
+          - image: amazon/aws-cli
+        steps:
+          - checkout
+          - run:
+              name: Install Dependancies 
+              command: |
+                yum install gzip -y 
+                yum install tar -y       
+          - run:
+              name: Deploy K8s EC2
+              command: |
+                aws cloudformation deploy \
+                  --template-file .circleci/files/ec2.yml \
+                  --tags project=udacity-capstone \
+                  --stack-name "udacity-capstone-${CIRCLE_WORKFLOW_ID:0:7}" \
+                  --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}  
+          - run:
+              name: Add instance ip to ansible inventory
+              command: |
+                echo "[web]" > inventory.txt
+                IP=$(aws ec2 describe-instances --region eu-central-1 --query "Reservations[*].Instances[*].PublicIpAddress"  --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}"  --output text) 
+                echo $IP >> .circleci/ansible/inventory.txt
+                cat .circleci/ansible/inventory.txt
+                curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "${IP}" https://api.memstash.io/values/ec2-ip-${CIRCLE_WORKFLOW_ID:0:7}                   
+          - persist_to_workspace:
+              root: ~/project/.circleci/ansible/
+              paths:
+                - inventory.txt
