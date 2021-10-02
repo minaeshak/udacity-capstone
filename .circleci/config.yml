@@ -65,3 +65,10 @@ jobs:
               root: ~/project/.circleci/ansible/
               paths:
                 - inventory.txt
+                
+workflows:
+  default:
+    jobs:
+      - build
+      - delpoy-ec2:
+          requires: [build]
